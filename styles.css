@@ -22,7 +22,10 @@ html, body {
   background: radial-gradient(circle at top, #3558d6 0%, var(--bg-top) 35%, var(--bg-bottom) 100%);
   color: var(--text);
 }
-body { overflow: hidden; }
+body {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
 button { font: inherit; }
 .app-shell {
   min-height: 100dvh;
