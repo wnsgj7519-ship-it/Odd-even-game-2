@@ -1,4 +1,4 @@
-const CACHE_NAME = "odd-even-game-v2";
+const CACHE_NAME = "odd-even-game-v4";
 const ASSETS = [
   "./",
   "./index.html",
@@ -24,6 +24,7 @@ self.addEventListener("activate", (event) => {
           if (key !== CACHE_NAME) {
             return caches.delete(key);
           }
+          return null;
         })
       )
     )
