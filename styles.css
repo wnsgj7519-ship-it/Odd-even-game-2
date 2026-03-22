@@ -4,9 +4,7 @@
   --panel: rgba(255, 255, 255, 0.12);
   --panel-border: rgba(255, 255, 255, 0.18);
   --text: #ffffff;
-  --muted: rgba(255, 255, 255, 0.8);
-  --accent: #ffd84f;
-  --accent-dark: #ffb703;
+  --muted: rgba(255, 255, 255, 0.82);
   --ok: #90ffb3;
   --bad: #ff9e9e;
   --bubble: linear-gradient(135deg, #4facfe, #00f2fe);
@@ -99,13 +97,17 @@ button {
 
 .action-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 10px;
   margin-top: 12px;
 }
 
+.action-row-3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
 .primary-btn,
-.secondary-btn {
+.secondary-btn,
+.danger-btn {
   padding: 14px 12px;
   border-radius: 16px;
   font-weight: 800;
@@ -118,6 +120,11 @@ button {
 
 .secondary-btn {
   background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.danger-btn {
+  background: linear-gradient(135deg, #ff8b8b, #ff5f7a);
   color: #fff;
 }
 
@@ -136,6 +143,10 @@ button {
   text-align: center;
   color: #fff;
   backdrop-filter: blur(8px);
+}
+
+.stat-box.full {
+  grid-column: 1 / -1;
 }
 
 .stat-box span {
@@ -229,6 +240,16 @@ button {
 @media (min-width: 560px) {
   .stats {
     grid-template-columns: repeat(3, 1fr);
+  }
+
+  .stat-box.full {
+    grid-column: span 3;
+  }
+}
+
+@media (max-width: 520px) {
+  .action-row-3 {
+    grid-template-columns: 1fr;
   }
 }
 
