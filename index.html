@@ -28,9 +28,10 @@
         <button id="selectEven" class="mode-btn" type="button">짝수 선택</button>
       </div>
 
-      <div class="action-row">
+      <div class="action-row action-row-3">
         <button id="startGame" class="primary-btn" type="button">게임 시작</button>
         <button id="restartGame" class="secondary-btn" type="button">다시 시작</button>
+        <button id="endGame" class="danger-btn" type="button">게임 종료</button>
       </div>
 
       <p id="message" class="message">홀수 또는 짝수를 선택하고 시작하세요.</p>
@@ -42,8 +43,12 @@
         <strong id="timer">30</strong>
       </div>
       <div class="stat-box">
-        <span>점수</span>
+        <span>총 점수</span>
         <strong id="score">0</strong>
+      </div>
+      <div class="stat-box">
+        <span>현재 판 점수</span>
+        <strong id="stageScore">0</strong>
       </div>
       <div class="stat-box">
         <span>스테이지</span>
@@ -57,9 +62,9 @@
         <span>최고 점수</span>
         <strong id="bestScore">0</strong>
       </div>
-      <div class="stat-box">
-        <span>다음 판 기준</span>
-        <strong>15점</strong>
+      <div class="stat-box full">
+        <span>다음 판 조건</span>
+        <strong>현재 판에서 15점 이상</strong>
       </div>
     </section>
 
@@ -69,6 +74,7 @@
 
     <section class="guide">
       <p>규칙: 1~100 숫자가 잠깐 나타납니다. 선택한 종류만 터치하면 +1점, 틀리면 -1점입니다.</p>
+      <p>다음 스테이지로 가려면 <strong>그 스테이지 안에서만</strong> 15점 이상을 획득해야 합니다.</p>
     </section>
   </main>
 
