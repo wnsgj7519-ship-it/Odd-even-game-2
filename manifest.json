@@ -2,23 +2,25 @@
   "name": "홀수짝수 맞추기",
   "short_name": "홀짝게임",
   "description": "홀수 또는 짝수를 골라 맞는 숫자만 터치하는 모바일 게임",
-  "start_url": "./index.html",
+  "id": "/Odd-even-game-2/",
+  "start_url": "/Odd-even-game-2/?source=pwa",
   "display": "standalone",
   "background_color": "#111827",
   "theme_color": "#121826",
   "lang": "ko",
   "orientation": "portrait",
-"icons": [
-  {
-    "src": "icon-192.png",
-    "sizes": "192x192",
-    "type": "image/png",
-    "purpose": "any maskable"
-  },
-  {
-    "src": "icon-512.png",
-    "sizes": "512x512",
-    "type": "image/png",
-    "purpose": "any maskable"
-  }
-]
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
