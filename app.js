@@ -1,6 +1,7 @@
 const gameBoard = document.getElementById("gameBoard");
 const timerEl = document.getElementById("timer");
 const scoreEl = document.getElementById("score");
+const stageScoreEl = document.getElementById("stageScore");
 const stageEl = document.getElementById("stage");
 const targetModeEl = document.getElementById("targetMode");
 const bestScoreEl = document.getElementById("bestScore");
@@ -10,6 +11,7 @@ const oddBtn = document.getElementById("selectOdd");
 const evenBtn = document.getElementById("selectEven");
 const startBtn = document.getElementById("startGame");
 const restartBtn = document.getElementById("restartGame");
+const endBtn = document.getElementById("endGame");
 
 const BEST_SCORE_KEY = "oddEvenBestScore";
 const GAME_TIME = 30;
@@ -17,8 +19,9 @@ const BASE_VISIBLE_TIME = 3000;
 const STAGE_CLEAR_SCORE = 15;
 const BASE_SPAWN_INTERVAL = 800;
 
-let selectedMode = null; // "odd" | "even"
-let score = 0;
+let selectedMode = null;
+let totalScore = 0;     // 전체 누적 점수
+let stageScore = 0;     // 현재 스테이지 점수
 let bestScore = Number(localStorage.getItem(BEST_SCORE_KEY) || 0);
 let stage = 1;
 let timeLeft = GAME_TIME;
@@ -55,6 +58,14 @@ restartBtn.addEventListener("click", () => {
   resetGame();
 });
 
+endBtn.addEventListener("click", () => {
+  if (!gameRunning) {
+    showMessage("진행 중인 게임이 없습니다.", "normal");
+    return;
+  }
+  finishEntireGame("게임을 종료했습니다.");
+});
+
 function updateModeButtons() {
   oddBtn.classList.toggle("active", selectedMode === "odd");
   evenBtn.classList.toggle("active", selectedMode === "even");
@@ -66,14 +77,13 @@ function resetGame() {
   removeAllBubbles();
   stopBgm();
 
-  score = 0;
+  totalScore = 0;
+  stageScore = 0;
   stage = 1;
   timeLeft = GAME_TIME;
   gameRunning = false;
 
-  scoreEl.textContent = score;
-  stageEl.textContent = stage;
-  timerEl.textContent = timeLeft;
+  updateUi();
   showMessage("다시 시작할 준비 완료!", "normal");
 }
 
@@ -82,7 +92,8 @@ function startGame() {
   removeAllBubbles();
   stopBgm();
 
-  score = 0;
+  totalScore = 0;
+  stageScore = 0;
   stage = 1;
   timeLeft = GAME_TIME;
   gameRunning = true;
@@ -90,13 +101,19 @@ function startGame() {
   updateUi();
   showMessage("게임 시작!", "good");
 
-  startStageLoop();
+  startCurrentStage();
 }
 
-function startStageLoop() {
+function startCurrentStage() {
   clearTimers();
   removeAllBubbles();
 
+  // 핵심: 스테이지가 시작될 때마다 그 스테이지 점수는 0점부터 시작
+  stageScore = 0;
+  timeLeft = GAME_TIME;
+  gameRunning = true;
+
+  updateUi();
   playStageBgm(stage);
 
   gameTimer = setInterval(() => {
@@ -104,7 +121,7 @@ function startStageLoop() {
     timerEl.textContent = timeLeft;
 
     if (timeLeft <= 0) {
-      finishStage();
+      finishStageByTimeOut();
     }
   }, 1000);
 
@@ -112,33 +129,39 @@ function startStageLoop() {
     spawnNumberBubble();
   }, getSpawnInterval());
 
-  // 시작 직후 첫 공도 바로 하나
   spawnNumberBubble();
 }
 
-function finishStage() {
+function finishStageByTimeOut() {
   clearTimers();
   removeAllBubbles();
-  updateBestScore();
 
-  if (score >= STAGE_CLEAR_SCORE) {
+  // 핵심 규칙:
+  // "현재 스테이지 점수"가 15점 이상일 때만 다음 단계
+  if (stageScore >= STAGE_CLEAR_SCORE) {
     gameRunning = false;
-    showMessage(`스테이지 ${stage} 클리어!`, "good");
+    showMessage(`스테이지 ${stage} 클리어! 현재 스테이지 ${stageScore}점`, "good");
     playSfx("stage");
 
     setTimeout(() => {
       stage += 1;
-      timeLeft = GAME_TIME;
-      gameRunning = true;
-      updateUi();
+      startCurrentStage();
       showMessage(`스테이지 ${stage} 시작!`, "good");
-      startStageLoop();
     }, 1400);
   } else {
-    gameRunning = false;
-    stopBgm();
-    showMessage(`게임 종료! 15점 이상이면 다음 스테이지예요.`, "bad");
+    // 현재 스테이지 점수가 15점 미만이면 즉시 전체 게임 종료
+    finishEntireGame(`스테이지 ${stage} 실패! 현재 스테이지 점수 ${stageScore}점`);
   }
+}
+
+function finishEntireGame(text) {
+  clearTimers();
+  removeAllBubbles();
+  stopBgm();
+  gameRunning = false;
+  updateBestScore();
+  updateUi();
+  showMessage(text, "bad");
 }
 
 function getVisibleTime() {
@@ -173,7 +196,9 @@ function spawnNumberBubble() {
   bubble.style.top = `${randomInt(8, Math.floor(maxTop))}px`;
   bubble.style.fontSize = `${fontSize}px`;
 
-  bubble.addEventListener("click", () => handleBubbleClick(number, bubble));
+  bubble.addEventListener("click", () => {
+    handleBubbleClick(number, bubble);
+  });
 
   gameBoard.appendChild(bubble);
 
@@ -193,35 +218,39 @@ function handleBubbleClick(number, bubble) {
   bubble.remove();
 
   if (isCorrect) {
-    score += 1;
+    totalScore += 1;
+    stageScore += 1;
     showMessage("정답! +1점", "good");
     playSfx("correct");
     vibrateGood();
   } else {
-    score = Math.max(0, score - 1);
+    totalScore = Math.max(0, totalScore - 1);
+    stageScore = Math.max(0, stageScore - 1);
     showMessage("오답! -1점", "bad");
     playSfx("wrong");
     vibrateBad();
   }
 
-  scoreEl.textContent = score;
+  updateUi();
 }
 
 function updateBestScore() {
-  if (score > bestScore) {
-    bestScore = score;
+  if (totalScore > bestScore) {
+    bestScore = totalScore;
     localStorage.setItem(BEST_SCORE_KEY, String(bestScore));
-    bestScoreEl.textContent = bestScore;
-    showMessage(`최고 점수 갱신! ${bestScore}점`, "good");
   }
+  bestScoreEl.textContent = bestScore;
 }
 
 function updateUi() {
-  scoreEl.textContent = score;
+  scoreEl.textContent = totalScore;
+  stageScoreEl.textContent = stageScore;
   stageEl.textContent = stage;
   timerEl.textContent = timeLeft;
   bestScoreEl.textContent = bestScore;
-  targetModeEl.textContent = selectedMode === "odd" ? "홀수" : "짝수";
+  targetModeEl.textContent =
+    selectedMode === "odd" ? "홀수" :
+    selectedMode === "even" ? "짝수" : "-";
 }
 
 function clearTimers() {
